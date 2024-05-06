@@ -166,3 +166,10 @@ cython_debug/
 *.ptx
 *.cubin
 *.fatbin
+
+data/
+caltables/
+
+*.fits
+
+*.npz
