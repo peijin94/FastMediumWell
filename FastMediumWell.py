@@ -89,3 +89,17 @@ def gcf(n, width):
         x = np.float32(2 * i - (n - 1)) / (n - 1)
         phi[i] = (np.sqrt(1 - x * x) ** j) * spheroid(x, width, p)
     return phi
+
+def corrfun( n, width):
+    """
+    Create gridding correction function, c
+    This implementation follows MIRIAD's grid.for subroutine.
+    """
+    alpha = 1.
+    dx = 2. / n
+    i0 = n / 2 + 1
+    phi = np.zeros(n, dtype=np.float32)
+    for i in np.arange(n):
+        x = (i - i0 + 1) * dx
+        phi[i] = spheroid(x, width, alpha)
+    return phi

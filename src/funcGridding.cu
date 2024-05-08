@@ -100,7 +100,7 @@
 	}
 
 
-	__global__ void SimpleGriddingBatch(float2 * Grd3d, bool * flag_2d, float2 * bm, 
+	__global__ void SimpleGriddingBatch(float2 * Grd3d, float * flag_2d, float2 * bm, 
 		float2 * sf, int * cnt, float * d_u, float * d_v, float * d_re,
 		float * d_im, float * cgf, int WIDTH, int HWIDTH, int NCGF, 
 		int N_u, float du, int gcount, int gcount_total, int umax, int vmax, 
@@ -168,7 +168,7 @@
 				 vv = mv / du + u0;
 				 cnu = abs(iu - uu), cnv = abs(iv - vv);
 				 if (cnu < HWIDTH && cnv < HWIDTH) {
-				 float wgt = cgf[int(round(4.6 * cnu + NCGF - 0.5))] * cgf[int(round(4.6 * cnv + NCGF - 0.5))];
+				 float wgt = cgf[int(round((NCGF-1.0)/WIDTH * cnu + (NCGF-1.0)/2))] * cgf[int(round((NCGF-1.0)/WIDTH * cnu + (NCGF-1.0)/2))];
 				for (int i = 0; i < batch_size_vis; i++) {
 				 	Grd3d[ind+i*N_u*N_u].x += wgt * d_re[ivis+i*gcount] * flag_2d[ivis+i*gcount];
 				 	Grd3d[ind+i*N_u*N_u].y += -1 * hflag * wgt * d_im[ivis+i*gcount] * flag_2d[ivis+i*gcount];
@@ -185,16 +185,5 @@
 	 }
 
 
-	 __global__ void dblGrid_kernel(float2 *Grd, int nu, int hfac){
-		int iu = blockDim.x*blockIdx.x + threadIdx.x;
-		int iv = blockDim.y*blockIdx.y + threadIdx.y;
-		int u0 = 0.5*nu;
-		if (iu >= 0 && iu < u0 && iv < nu && iv >= 0){
-		  int niu = nu-iu;
-		  int niv = nu-iv;
-		  Grd[iv*nu+iu].x =      Grd[niv*nu+niu].x;
-		  Grd[iv*nu+iu].y = hfac*Grd[niv*nu+niu].y;
-		}
-	  }
 
- }
+}
