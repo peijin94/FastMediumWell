@@ -170,7 +170,7 @@
 				 if (cnu < HWIDTH && cnv < HWIDTH) {
 				 float wgt = cgf[int(round((NCGF-1.0)/WIDTH * cnu + (NCGF-1.0)/2))] * cgf[int(round((NCGF-1.0)/WIDTH * cnu + (NCGF-1.0)/2))];
 				for (int i = 0; i < batch_size_vis; i++) {
-				 	Grd3d[ind+i*N_u*N_u].x += wgt * d_re[ivis+i*gcount] * flag_2d[ivis+i*gcount];
+				 	Grd3d[ind+i*N_u*N_u].x += 			   wgt * d_re[ivis+i*gcount] * flag_2d[ivis+i*gcount];
 				 	Grd3d[ind+i*N_u*N_u].y += -1 * hflag * wgt * d_im[ivis+i*gcount] * flag_2d[ivis+i*gcount];
 				}
 				 cnt[ind] += 1;

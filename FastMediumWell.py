@@ -103,3 +103,6 @@ def corrfun( n, width):
         x = (i - i0 + 1) * dx
         phi[i] = spheroid(x, width, alpha)
     return phi
+
+import cupy
+
