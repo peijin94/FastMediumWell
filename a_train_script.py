@@ -16,10 +16,10 @@ optimizer = optim.Adam(model.parameters(), lr=3e-3)
 # Dataset and DataLoader setup
 num_train_images = 4096  # Specify how many images you want for training
 train_dataset = DynamicImageDataset(num_train_images)
-train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True)
+train_loader = DataLoader(train_dataset, batch_size=128, shuffle=True)
 
 # Train the model
-train(model, train_loader, epochs=400, device=device, criterion=criterion,
-       optimizer=optimizer, file_epoch=True)
+train(model, train_loader, epochs=6000, device=device, criterion=criterion,
+       optimizer=optimizer, file_epoch=True, save_every=300, save_path='modelfile/', save_name_base='model2')
 
-torch.save(model.state_dict(), 'modelepoch500bn256model2.pth')
+#torch.save(model.state_dict(), 'modelepoch800bn256model2.pth')

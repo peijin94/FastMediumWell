@@ -40,19 +40,21 @@ def spectral_noise(image_size, peak_frequency):
 def create_image():
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
     image_size = (256, 256)
-    image = spectral_noise(image_size, 16).to(device)*0.5
+    #image = spectral_noise(image_size, 16).to(device)*1.5
+    image = torch.zeros(image_size, device=device)
     image_foreground = torch.zeros(image_size, device=device)
 
     # Parameters for multiple Gaussians
-    num_gaussians = 10
-    centers = torch.randint(int(image_size[0]*0.2), int(image_size[0]*0.8), (num_gaussians, 2), device=device)
-    axes = torch.rand( (num_gaussians, 2), device=device) *3.5+1.5
+    num_gaussians = 20
+    centers = torch.randint(int(image_size[0]*0.15), int(image_size[0]*0.85), (num_gaussians, 2), device=device)
+    axes = ( torch.rand( (num_gaussians, 2), device=device) *4+2) *( torch.rand((num_gaussians, 1), device=device) +0.5)
+
     angles = torch.randint(0, 360, (num_gaussians,), device=device)/180 * 3.14159
     amplitudes = (torch.randn(num_gaussians, device=device)**2) *6 +2
 
     # Add Gaussians to the images
     add_elliptic_gaussian(image, centers, axes, angles, amplitudes)
-    add_elliptic_gaussian(image_foreground, centers, axes, angles, amplitudes)
+    #add_elliptic_gaussian(image_foreground, centers, axes, angles, amplitudes)
     
     imagmax = torch.max(image)
     image /= imagmax
@@ -325,9 +327,16 @@ class DynamicImageDataset(Dataset):
 
 # Assuming the autoencoder and other necessary imports and functions are defined
 
+import time
 
-def train(model, dataloader, epochs, optimizer, device, criterion=nn.MSELoss(),print_epoch=True,file_epoch=False):
+def train(model, dataloader, epochs, optimizer, device, criterion=nn.MSELoss(),
+          print_epoch=True,file_epoch=False, save_every=None, save_path=None, save_name_base=None):
     model.train()
+
+    # time of the training
+    t0 = time.time()
+    loss_list = []
+
     for epoch in range(epochs):
         total_loss = 0
         for data in dataloader:
@@ -342,7 +351,15 @@ def train(model, dataloader, epochs, optimizer, device, criterion=nn.MSELoss(),p
 
             total_loss += loss.item()
         if print_epoch:
-            print(f'Epoch {epoch+1}, Loss: {total_loss / len(dataloader)}')
+            print('Epoch [{}/{}], Loss: {:.10f}'.format(epoch+1, epochs, total_loss / len(dataloader))+ ' # Time(s): '+ str(time.time()-t0))
         if file_epoch:
             with open('losses.txt','a') as f:
-                f.write(f'Epoch {epoch+1}, Loss: {total_loss / len(dataloader)}\n')
+                f.write('Epoch [{}/{}], Loss: {:.10f}'.format(epoch+1, epochs, total_loss / len(dataloader))+ ' # Time(s): '+ str(time.time()-t0)+'\n')
+        if save_every and save_path and save_name_base:
+            if (epoch+1) % save_every == 0:
+                print(f'Saving model at epoch {epoch+1}')
+                torch.save(model.state_dict(), f'{save_path}{save_name_base}_epoch{epoch+1}.pth')
+        
+        loss_list.append(total_loss / len(dataloader))
+    
+    np.save('losses.npy', np.array(loss_list))
