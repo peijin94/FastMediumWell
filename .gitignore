@@ -33,6 +33,8 @@ fig/
 *.manifest
 *.spec
 
+losses.txt
+
 # Installer logs
 pip-log.txt
 pip-delete-this-directory.txt
