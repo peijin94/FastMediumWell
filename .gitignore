@@ -33,7 +33,6 @@ fig/
 *.manifest
 *.spec
 
-losses.txt
 
 # Installer logs
 pip-log.txt
@@ -176,3 +175,4 @@ caltables/
 *.fits
 
 *.npz
+*.npy
